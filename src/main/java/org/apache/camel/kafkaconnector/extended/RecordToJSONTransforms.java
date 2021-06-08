@@ -7,6 +7,7 @@ import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.connect.connector.ConnectRecord;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.header.ConnectHeaders;
+import org.apache.kafka.connect.header.Header;
 import org.apache.kafka.connect.header.Headers;
 import org.apache.kafka.connect.transforms.Transformation;
 
@@ -38,7 +39,7 @@ public class RecordToJSONTransforms<R extends ConnectRecord<R>> implements Trans
     StorageRecord storageRecord =
         new StorageRecord((String) record.key(), (String) record.value(), connectHeaders);
     GsonBuilder gsonBuilder = new GsonBuilder();
-    gsonBuilder.registerTypeAdapter(ConnectHeaders.class, new HeadersInstanceCreator());
+    gsonBuilder.registerTypeAdapter(Header.class, new HeaderAdapter<Header>());
     Gson gson = gsonBuilder.create();
     String storageRecordJSON = gson.toJson(storageRecord, StorageRecord.class);
     return record.newRecord(
