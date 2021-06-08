@@ -38,7 +38,7 @@ public class RecordToJSONTransforms<R extends ConnectRecord<R>> implements Trans
     StorageRecord storageRecord =
         new StorageRecord((String) record.key(), (String) record.value(), connectHeaders);
     GsonBuilder gsonBuilder = new GsonBuilder();
-    // gsonBuilder.registerTypeAdapter(Headers.class, new HeadersInstanceCreator());
+    gsonBuilder.registerTypeAdapter(ConnectHeaders.class, new HeadersInstanceCreator());
     Gson gson = gsonBuilder.create();
     String storageRecordJSON = gson.toJson(storageRecord, StorageRecord.class);
     return record.newRecord(
