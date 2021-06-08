@@ -31,7 +31,7 @@ public class JSONToRecordTransforms<R extends ConnectRecord<R>> implements Trans
   public R apply(R record) {
     String str = new String((byte[]) record.value());
     GsonBuilder gsonBuilder = new GsonBuilder();
-    gsonBuilder.registerTypeAdapter(ConnectRecord.class, new HeaderAdapter<ConnectRecord<R>>());
+    gsonBuilder.registerTypeAdapter(ConnectRecord.class, new Adapter<ConnectRecord<R>>());
     Gson gson = gsonBuilder.create();
     StorageRecord storageRecord = gson.fromJson(str, StorageRecord.class);
     return record.newRecord(
