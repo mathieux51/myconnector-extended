@@ -1,11 +1,13 @@
 package org.apache.camel.kafkaconnector.extended;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.util.Map;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.connect.connector.ConnectRecord;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.transforms.Transformation;
+// import org.apache.kafka.connect.header.Headers;
 
 public class RecordToJSONTransforms<R extends ConnectRecord<R>> implements Transformation<R> {
   public static final String FIELD_KEY_CONFIG = "key";
@@ -23,8 +25,11 @@ public class RecordToJSONTransforms<R extends ConnectRecord<R>> implements Trans
 
   @Override
   public R apply(R record) {
-    StorageRecord storageRecord = new StorageRecord((String) record.key(), (String) record.value(), record.headers());
-    Gson gson = new Gson();
+    StorageRecord storageRecord =
+        new StorageRecord((String) record.key(), (String) record.value(), record.headers());
+    GsonBuilder gsonBuilder = new GsonBuilder();
+    gsonBuilder.registerTypeAdapter(Headers.class, new HeadersInstanceCreator());
+    Gson gson = gsonBuilder.create();
     String storageRecordJSON = gson.toJson(storageRecord, StorageRecord.class);
     return record.newRecord(
         record.topic(),
