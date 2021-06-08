@@ -38,7 +38,7 @@ public class JSONToRecordTransforms<R extends ConnectRecord<R>> implements Trans
         record.valueSchema(),
         storageRecord.body,
         record.timestamp(),
-        storageRecord.headers);
+        storageRecord.connectHeaders);
   }
 
   @Override
