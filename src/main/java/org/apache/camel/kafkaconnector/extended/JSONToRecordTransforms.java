@@ -29,8 +29,8 @@ public class JSONToRecordTransforms<R extends ConnectRecord<R>> implements Trans
     Gson gson = new Gson();
     String str = new String((byte[]) record.value());
 
-  StorageRecord storageRecord = gson.fromJson(str, StorageRecord.class);
-  return record.newRecord(
+    StorageRecord storageRecord = gson.fromJson(str, StorageRecord.class);
+    return record.newRecord(
         record.topic(),
         record.kafkaPartition(),
         record.keySchema(),
