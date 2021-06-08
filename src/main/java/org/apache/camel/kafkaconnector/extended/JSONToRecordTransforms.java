@@ -1,6 +1,8 @@
 package org.apache.camel.kafkaconnector.extended;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.apache.kafka.connect.header.ConnectHeaders;
 // import com.google.gson.reflect.TypeToken;
 // import org.slf4j.Logger;
 // import org.slf4j.LoggerFactory;
@@ -26,9 +28,12 @@ public class JSONToRecordTransforms<R extends ConnectRecord<R>> implements Trans
 
   @Override
   public R apply(R record) {
-    Gson gson = new Gson();
+    // Gson gson = new Gson();
     String str = new String((byte[]) record.value());
 
+    GsonBuilder gsonBuilder = new GsonBuilder();
+    gsonBuilder.registerTypeAdapter(ConnectHeaders.class, new HeadersInstanceCreator());
+    Gson gson = gsonBuilder.create();
     StorageRecord storageRecord = gson.fromJson(str, StorageRecord.class);
     return record.newRecord(
         record.topic(),
