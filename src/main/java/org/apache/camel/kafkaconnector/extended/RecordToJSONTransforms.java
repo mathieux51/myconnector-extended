@@ -6,7 +6,6 @@ import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.connect.connector.ConnectRecord;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.transforms.Transformation;
-import com.google.gson.reflect.TypeToken;
 
 public class RecordToJSONTransforms<R extends ConnectRecord<R>> implements Transformation<R> {
   public static final String FIELD_KEY_CONFIG = "key";
@@ -24,15 +23,16 @@ public class RecordToJSONTransforms<R extends ConnectRecord<R>> implements Trans
 
   @Override
   public R apply(R record) {
+    StorageRecord storageRecord = new StorageRecord((String) record.key(), (String) record.value(), record.headers());
     Gson gson = new Gson();
-    String json = gson.toJson(record, new TypeToken<ConnectRecord<R>>() {}.getType());
+    String storageRecordJSON = gson.toJson(storageRecord, StorageRecord.class);
     return record.newRecord(
         record.topic(),
         record.kafkaPartition(),
         null,
         record.key(),
         Schema.STRING_SCHEMA,
-        json,
+        storageRecordJSON,
         record.timestamp());
   }
 

@@ -8,7 +8,6 @@ import java.util.Map;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.connect.connector.ConnectRecord;
 import org.apache.kafka.connect.transforms.Transformation;
-import com.google.gson.reflect.TypeToken;
 
 public class JSONToRecordTransforms<R extends ConnectRecord<R>> implements Transformation<R> {
   public static final String FIELD_KEY_CONFIG = "key";
@@ -29,16 +28,17 @@ public class JSONToRecordTransforms<R extends ConnectRecord<R>> implements Trans
   public R apply(R record) {
     Gson gson = new Gson();
     String str = new String((byte[]) record.value());
-    return gson.fromJson(str, new TypeToken<ConnectRecord<R>>() {}.getType());
-  // return record.newRecord(
-  //       connectRecord.topic(),
-  //       connectRecord.kafkaPartition(),
-  //       connectRecord.keySchema(),
-  //       connectRecord.key(),
-  //       connectRecord.valueSchema(),
-  //       connectRecord.value(),
-  //       connectRecord.timestamp(),
-  //       connectRecord.headers());
+
+  StorageRecord storageRecord = gson.fromJson(str, StorageRecord.class);
+  return record.newRecord(
+        record.topic(),
+        record.kafkaPartition(),
+        record.keySchema(),
+        storageRecord.key,
+        record.valueSchema(),
+        storageRecord.body,
+        record.timestamp(),
+        storageRecord.headers);
   }
 
   @Override
