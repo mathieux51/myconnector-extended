@@ -9,7 +9,7 @@ import org.apache.kafka.connect.connector.ConnectRecord;
 // import com.google.gson.reflect.TypeToken;
 // import org.slf4j.Logger;
 // import org.slf4j.LoggerFactory;
-import org.apache.kafka.connect.header.Header;
+// import org.apache.kafka.connect.header.Header;
 import org.apache.kafka.connect.transforms.Transformation;
 
 public class JSONToRecordTransforms<R extends ConnectRecord<R>> implements Transformation<R> {
@@ -31,7 +31,7 @@ public class JSONToRecordTransforms<R extends ConnectRecord<R>> implements Trans
   public R apply(R record) {
     String str = new String((byte[]) record.value());
     GsonBuilder gsonBuilder = new GsonBuilder();
-    gsonBuilder.registerTypeAdapter(Header.class, new HeaderAdapter<Header>());
+    gsonBuilder.registerTypeAdapter(ConnectRecord.class, new HeaderAdapter<ConnectRecord<R>>());
     Gson gson = gsonBuilder.create();
     StorageRecord storageRecord = gson.fromJson(str, StorageRecord.class);
     return record.newRecord(

@@ -4,7 +4,7 @@ import com.google.gson.*;
 import java.lang.reflect.Type;
 // import org.apache.kafka.connect.connector.ConnectRecord;
 
-public class HeaderAdapter<R> implements JsonSerializer<R>, JsonDeserializer<R> {
+public class Adapter<R> implements JsonSerializer<R>, JsonDeserializer<R> {
   @Override
   public JsonElement serialize(R src, Type typeOfSrc, JsonSerializationContext context) {
     JsonObject result = new JsonObject();
