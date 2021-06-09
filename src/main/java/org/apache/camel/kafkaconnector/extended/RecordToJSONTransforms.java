@@ -2,11 +2,14 @@ package org.apache.camel.kafkaconnector.extended;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import java.util.ArrayList;
+// import java.util.List;
 import java.util.Map;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.connect.connector.ConnectRecord;
 import org.apache.kafka.connect.data.Schema;
-import org.apache.kafka.connect.header.ConnectHeaders;
+// import org.apache.kafka.connect.header.ConnectHeaders;
+// import org.apache.kafka.connect.header.Header;
 import org.apache.kafka.connect.header.Header;
 import org.apache.kafka.connect.header.Headers;
 import org.apache.kafka.connect.transforms.Transformation;
@@ -27,19 +30,16 @@ public class RecordToJSONTransforms<R extends ConnectRecord<R>> implements Trans
 
   @Override
   public R apply(R record) {
-
     Headers headers = record.headers();
-    ConnectHeaders connectHeaders;
-    if (headers instanceof ConnectHeaders) {
-      connectHeaders = (ConnectHeaders) headers;
-    } else {
-      connectHeaders = new ConnectHeaders(headers);
+    ArrayList<StorageHeader> headerList = new ArrayList<StorageHeader>(headers.size());
+    for (Header h : headers) {
+      headerList.add(new StorageHeader(h.key(), (String) h.value()));
     }
-
+    StorageHeader[] storageHeaders = new StorageHeader[headers.size()];
     StorageRecord storageRecord =
-        new StorageRecord((String) record.key(), (String) record.value(), connectHeaders);
+        new StorageRecord(
+            (String) record.key(), (String) record.value(), headerList.toArray(storageHeaders));
     GsonBuilder gsonBuilder = new GsonBuilder();
-    gsonBuilder.registerTypeAdapter(ConnectRecord.class, new Adapter<ConnectRecord<R>>());
     Gson gson = gsonBuilder.create();
     String storageRecordJSON = gson.toJson(storageRecord, StorageRecord.class);
     return record.newRecord(

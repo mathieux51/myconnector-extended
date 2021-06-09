@@ -5,12 +5,13 @@ import com.google.gson.GsonBuilder;
 import java.util.Map;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.connect.connector.ConnectRecord;
-// import org.apache.kafka.connect.header.ConnectHeaders;
+import org.apache.kafka.connect.header.ConnectHeaders;
 // import com.google.gson.reflect.TypeToken;
 // import org.slf4j.Logger;
 // import org.slf4j.LoggerFactory;
-// import org.apache.kafka.connect.header.Header;
+import org.apache.kafka.connect.header.Headers;
 import org.apache.kafka.connect.transforms.Transformation;
+// import java.util.Arrays;
 
 public class JSONToRecordTransforms<R extends ConnectRecord<R>> implements Transformation<R> {
   public static final String FIELD_KEY_CONFIG = "key";
@@ -31,18 +32,26 @@ public class JSONToRecordTransforms<R extends ConnectRecord<R>> implements Trans
   public R apply(R record) {
     String str = new String((byte[]) record.value());
     GsonBuilder gsonBuilder = new GsonBuilder();
-    gsonBuilder.registerTypeAdapter(ConnectRecord.class, new Adapter<ConnectRecord<R>>());
+    // gsonBuilder.registerTypeAdapter(ConnectRecord.class, new Adapter<ConnectRecord<R>>());
     Gson gson = gsonBuilder.create();
     StorageRecord storageRecord = gson.fromJson(str, StorageRecord.class);
+    Headers headers = new ConnectHeaders();
+
+    for (int i = 0; i < storageRecord.headers.length; i++) {
+      headers.add(storageRecord.headers[i].key, storageRecord.headers[i].value, null);
+    }
+
+    headers.forEach(h -> record.headers().add(h));
+
     return record.newRecord(
         record.topic(),
         record.kafkaPartition(),
         record.keySchema(),
-        storageRecord.key,
+        (Object) storageRecord.key,
         record.valueSchema(),
-        storageRecord.body,
+        (Object) storageRecord.body,
         record.timestamp(),
-        storageRecord.connectHeaders);
+        headers);
   }
 
   @Override
