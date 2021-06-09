@@ -32,6 +32,7 @@ public class JSONToRecordTransforms<R extends ConnectRecord<R>> implements Trans
     GsonBuilder gsonBuilder = new GsonBuilder();
     Gson gson = gsonBuilder.create();
     StorageRecord storageRecord = gson.fromJson(str, StorageRecord.class);
+    // Header format conversion
     Headers headers = new ConnectHeaders();
     for (int i = 0; i < storageRecord.headers.length; i++) {
       headers.add(storageRecord.headers[i].key, storageRecord.headers[i].value, null);
@@ -41,9 +42,9 @@ public class JSONToRecordTransforms<R extends ConnectRecord<R>> implements Trans
         record.topic(),
         record.kafkaPartition(),
         record.keySchema(),
-        (Object) storageRecord.key,
+        storageRecord.key,
         record.valueSchema(),
-        (Object) storageRecord.body,
+        storageRecord.body,
         record.timestamp(),
         headers);
   }

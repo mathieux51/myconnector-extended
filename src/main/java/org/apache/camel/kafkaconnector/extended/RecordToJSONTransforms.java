@@ -27,6 +27,7 @@ public class RecordToJSONTransforms<R extends ConnectRecord<R>> implements Trans
 
   @Override
   public R apply(R record) {
+    // Convert headers to StorageHeader format
     Headers headers = record.headers();
     ArrayList<StorageHeader> headerList = new ArrayList<StorageHeader>(headers.size());
     for (Header h : headers) {
@@ -36,6 +37,8 @@ public class RecordToJSONTransforms<R extends ConnectRecord<R>> implements Trans
     StorageRecord storageRecord =
         new StorageRecord(
             (String) record.key(), (String) record.value(), headerList.toArray(storageHeaders));
+
+    // Serialize
     GsonBuilder gsonBuilder = new GsonBuilder();
     Gson gson = gsonBuilder.create();
     String storageRecordJSON = gson.toJson(storageRecord, StorageRecord.class);
